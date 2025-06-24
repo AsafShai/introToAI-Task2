@@ -5,8 +5,11 @@ from collections import Counter
 
 
 def main():
-    attributes, rows = parse_file("ex2/train.txt")
-    test_attributes, test_rows = parse_file("ex2/test.txt")
+    train_file_path = "train.txt"
+    test_file_path = "test.txt"
+    output_file_path = "output.txt"
+    attributes, rows = parse_file(train_file_path)
+    test_attributes, test_rows = parse_file(test_file_path)
 
     id3_classifier = ID3()
     id3_classifier.fit(attributes, rows)
@@ -19,9 +22,10 @@ def main():
     naiveBayes_Predictions = naive_bayes_classifier.predict(test_rows)
     naiveBayes_accuracy = naive_bayes_classifier.score(test_rows)
 
-    with open("ex2/output.txt", "w") as f:
-        for i in range(len(id3_Predictions)):
-            f.write(f"{id3_Predictions[i]}\t{naiveBayes_Predictions[i]}\n")
+    with open(output_file_path, "w") as f:
+        f.write("ID3\tNaiveBayes\n")
+        for id3_prediction, naiveBayes_prediction in zip(id3_Predictions, naiveBayes_Predictions):
+            f.write(f"{id3_prediction}\t{naiveBayes_prediction}\n")
         f.write(f"{id3_accuracy}\t{naiveBayes_accuracy}")
 
 
@@ -337,7 +341,7 @@ class NaiveBayes(Classifier):
             if value in self.conditionals[attribute]:
                 prob *= self.conditionals[attribute][value][label]
             else:
-                # Unseen value: use laplace smoothing with training data counts
+                # Unseen value: use laplace smoothing
                 k = len(self.conditionals[attribute])
                 training_label_count = self.training_label_counts[label]
                 prob *= 1 / (training_label_count + k)
